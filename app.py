@@ -78,7 +78,7 @@ class Handler:
             }
         )
         self.browser = await uc.start(
-            browser_args=["--headless=true", "--disable-gpu=true", "--no-sandbox=True"]
+            browser_args=["--headless=true", "--disable-gpu=true", "--no-sandbox=True"] , browser_executable_path="/usr/bin/google-chrome"
         )
         self.tab = self.browser.main_tab
         self.tab.add_handler(cdp.fetch.RequestPaused, self.request_paused_handler)
