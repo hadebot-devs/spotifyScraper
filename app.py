@@ -57,31 +57,31 @@ class Handler:
         self.app.router.add_get("/token", self.handle_token_request)
         self.app.on_startup.append(self.on_startup)
         self.app.on_cleanup.append(self.on_cleanup)
-    
+
     def get_chrome_executable(self):
         """Get Chrome executable path with fallbacks"""
-        chrome_path = os.getenv('CHROME_EXECUTABLE_PATH')
+        chrome_path = os.getenv("CHROME_EXECUTABLE_PATH")
         if chrome_path and os.path.isfile(chrome_path):
             return chrome_path
-        
+
         fallback_paths = [
-            '/usr/bin/google-chrome',
-            '/usr/bin/google-chrome-stable',
-            '/usr/bin/chromium',
-            '/usr/bin/chromium-browser'
+            "/usr/bin/google-chrome",
+            "/usr/bin/google-chrome-stable",
+            "/usr/bin/chromium",
+            "/usr/bin/chromium-browser",
         ]
-        
+
         for path in fallback_paths:
             if os.path.isfile(path):
                 return path
-        
-        return None    
+
+        return None
 
     def should_refresh_token(self) -> bool:
         if not self.token_response:
             return True
         return (
-            time.time() + 60  
+            time.time() + 60
             >= self.token_response["accessTokenExpirationTimestampMs"] / 1000
         )
 
@@ -90,7 +90,7 @@ class Handler:
         logger.info("Starting the browser executable: %s", chrome_path)
         if not chrome_path:
             raise FileNotFoundError("Chrome executable not found")
-    
+
         self.session = aiohttp.ClientSession(
             headers={
                 "User-Agent": (
@@ -101,7 +101,8 @@ class Handler:
             }
         )
         self.browser = await uc.start(
-            browser_args=["--headless=true", "--disable-gpu=true", "--no-sandbox=True"] , browser_executable_path=chrome_path
+            browser_args=["--headless=true", "--disable-gpu=true", "--no-sandbox=True"],
+            browser_executable_path=chrome_path,
         )
         self.tab = self.browser.main_tab
         self.tab.add_handler(cdp.fetch.RequestPaused, self.request_paused_handler)
@@ -111,7 +112,7 @@ class Handler:
         logger.info("Spotify ready.")
         self._refresh_task = asyncio.create_task(self._refresh_loop())
 
-    async def on_cleanup(self, _ : web.Application) -> None:
+    async def on_cleanup(self, _: web.Application) -> None:
         logger.info("Cleaning up…")
         self._refresh_task.cancel()
         with suppress(asyncio.CancelledError):
@@ -142,11 +143,11 @@ class Handler:
                 if resp.status == 200:
                     data = await resp.json()
                     if "accessToken" in data:
-                        logger.info("Successfully fetched access token : %s" , data)
+                        logger.info("Successfully fetched access token : %s", data)
                         self.token_response = data
-                else:        
+                else:
                     error = await resp.text()
-                    logger.error(f"Error fetching token: {error}")        
+                    logger.error(f"Error fetching token: {error}")
         else:
             if url.startswith(
                 (
@@ -165,9 +166,14 @@ class Handler:
 
 def main():
     handler = Handler()
-    web.run_app(handler.app, host=os.getenv("HOST" , "0.0.0.0"), port=int(os.getenv("PORT", 8080)))
+    web.run_app(
+        handler.app,
+        host=os.getenv("HOST", "0.0.0.0"),
+        port=int(os.getenv("PORT", 8080)),
+    )
 
 
 if __name__ == "__main__":
     from contextlib import suppress
+
     main()
