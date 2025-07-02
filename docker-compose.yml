@@ -1,7 +1,7 @@
 services:
   spotify-scraper:
     container_name: spotify-scraper
-    image : "ghcr.io/hadebot-devs/spotifyscraper:"
+    image : "ghcr.io/hadebot-devs/spotifyscraper:latest"
     restart : "no"  
     ports:
       - "127.0.0.1:8080:8080"
