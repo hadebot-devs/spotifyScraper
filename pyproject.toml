@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "aiohttp>=3.12.13",
-    "nodriver>=0.46.1",
-    "rich>=14.0.0",
+    "aiohttp",
+    "nodriver",
+    "rich",
 ]

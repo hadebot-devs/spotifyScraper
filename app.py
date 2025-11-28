@@ -1,4 +1,5 @@
 import aiohttp
+from contextlib import suppress
 import nodriver as uc
 from aiohttp import web
 from nodriver import cdp
@@ -54,7 +55,7 @@ class Handler:
         self.token_response: Optional[AccessTokenResponse] = None
 
         self.app = web.Application(logger=logger)
-        self.app.router.add_get("/token", self.handle_token_request)
+        self.app.router.add_get("/api/token", self.handle_token_request)
         self.app.on_startup.append(self.on_startup)
         self.app.on_cleanup.append(self.on_cleanup)
 
@@ -120,7 +121,7 @@ class Handler:
         await self.session.close()
         for tab in self.browser.tabs:
             await tab.close()
-        await asyncio.to_thread(self.browser.stop())
+        self.browser.stop()
         logger.info("Cleanup complete.")
 
     async def _refresh_loop(self) -> None:
@@ -169,11 +170,9 @@ def main():
     web.run_app(
         handler.app,
         host=os.getenv("HOST", "0.0.0.0"),
-        port=int(os.getenv("PORT", 8080)),
+        port=int(os.getenv("PORT", 7200)),
     )
 
 
 if __name__ == "__main__":
-    from contextlib import suppress
-
     main()
